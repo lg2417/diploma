@@ -12,10 +12,10 @@ from sklearn.model_selection import train_test_split
 from mlxtend.evaluate import feature_importance_permutation
 
     #Сбор полного Xtrain из сохраненных файлов 
-X4=pd.read_pickle("./xtrain_sams2.pkl")
-X3=pd.read_pickle("./xtrain_fuji2.pkl")
-X2=pd.read_pickle("./xtrain_nikon2.pkl")
-X1=pd.read_pickle("./xtrain_huaw2.pkl")
+X4=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_sams2.pkl")
+X3=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_fuji2.pkl")
+X2=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_nikon2.pkl")
+X1=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_huaw2.pkl")
 Xtrain=pd.concat([X1,X2,X3,X4], axis = 0).reset_index().drop(['index'], axis=1)
     #Сбор полного Xtest из сохраненных файлов 
 #X1=pd.read_pickle("./xtest_sams_dog.pkl")
@@ -23,7 +23,7 @@ Xtrain=pd.concat([X1,X2,X3,X4], axis = 0).reset_index().drop(['index'], axis=1)
 #X3=pd.read_pickle("./xtest_nikon_dog.pkl")
 #X4=pd.read_pickle("./xtest_huaw_dog.pkl")
 #Xtest=pd.concat([X1,X2,X3,X4], axis = 0).reset_index().drop(['index'], axis=1) 
-Xtest=pd.read_pickle('./xtest_all.pkl')
+Xtest=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtest_all.pkl")
 Ytrain = pd.Series()
 i=0
 n=30*4

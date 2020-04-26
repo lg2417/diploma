@@ -50,19 +50,19 @@ def pirson_coef (pixel_map1, img):
     return(coef_pir)
     
 def classificator_on_map (img):
-    with open('img_med_huaw.pcl','rb') as fp:
+    with open('E:/Users/Elena/Desktop/nirs/img_med_huaw.pcl','rb') as fp:
         pixel_map=pickle.load(fp)
     img_p,pixel_map=cut_img(img,pixel_map)
     coef1=pirson_coef(pixel_map,img_p)
-    with open('img_med_nikon.pcl','rb') as fp:
+    with open('E:/Users/Elena/Desktop/nirs/img_med_nikon.pcl','rb') as fp:
         pixel_map=pickle.load(fp)
     img_p,pixel_map=cut_img(img,pixel_map)
     coef2=pirson_coef(pixel_map,img_p)
-    with open('img_med_fuji.pcl','rb') as fp:
+    with open('E:/Users/Elena/Desktop/nirs/img_med_fuji.pcl','rb') as fp:
         pixel_map=pickle.load(fp)
     img_p,pixel_map=cut_img(img,pixel_map)
     coef3=pirson_coef(pixel_map,img_p)
-    with open('img_med_sams.pcl','rb') as fp:
+    with open('E:/Users/Elena/Desktop/nirs/img_med_sams.pcl','rb') as fp:
         pixel_map=pickle.load(fp)
     img_p,pixel_map=cut_img(img,pixel_map)
     coef4=pirson_coef(pixel_map,img_p)    
@@ -70,10 +70,10 @@ def classificator_on_map (img):
     pred=numpy.argmax(list1)+1
     return list1
     
-fds = sorted(os.listdir('./test_all/'))
+fds = sorted(os.listdir('E:/Users/Elena/Desktop/nirs/test_all/'))
 coefs =[]
 for img in fds:
     if img.endswith(('.jpg','.JPG')):
-        img_test= mean_filter(imread('./test_all/'+img)[:,:,2]).astype(numpy.float64)
+        img_test= mean_filter(imread('E:/Users/Elena/Desktop/nirs/test_all/'+img)[:,:,2]).astype(numpy.float64)
         coef=classificator_on_map(img_test)
         coefs.append(coef)
