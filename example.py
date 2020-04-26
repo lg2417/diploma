@@ -7,7 +7,7 @@ from scipy import signal as s1
 
 class PixelMapClassifier(object):
     """
-        Some information about class
+        Classifier based on pearson correlation. 
     """
     def __init__(self, pickle_path='C:/1/'):
         self.pickle_path = pickle_path
@@ -16,10 +16,12 @@ class PixelMapClassifier(object):
 
     def __cut_img__(self, img: np.ndarray, pixel_map: np.ndarray) -> (np.ndarray, np.ndarray):
         """
-        Some info about method
-        :param img:
-        :param pixel_map:
-        :return:
+        Cut all input data to one size
+        
+        :param img: 2 dimencional numpy array - photo
+        :param pixel_map: 2 dimencional numpy array - map of hot pixels
+        
+        :return: cropped images
         """
         [x1,y1]=pixel_map.shape
         [x2,y2]=img.shape
@@ -40,6 +42,11 @@ class PixelMapClassifier(object):
         
 
     def __get_pixel_maps__(self):
+        """
+        Get all pixel maps from the path
+        
+        :return: list of pixel maps
+        """
         pixel_maps_paths = list(Path(self.pickle_path).rglob("*.pcl"))
         pixel_maps = []
 
@@ -49,6 +56,14 @@ class PixelMapClassifier(object):
         return pixel_maps
     
     def pirson_coef(self, pixel_map1:np.ndarray,img:np.ndarray)->float:
+        """
+        Calculate pearson coefficient between photo and pixel map
+        
+        :pixel_map1: 2D numpy array - map of hot pixels
+        :img: 2D numpy array - photo
+        
+        :return: pearson coefficient
+        """
         img_p=(img-img.mean())/img.std()
         pixel_map1=(pixel_map1-pixel_map1.mean())/pixel_map1.std()
         [m1,m2]=img_p.shape
@@ -57,6 +72,13 @@ class PixelMapClassifier(object):
         return(coef_pir)
    
     def __calc_coef__(self,img: np.ndarray):
+        """
+        Calculate pearson coefficients between photo and all pixel maps
+        
+        :img: 2D numpy array - photo
+        
+        :return: list of pearson coefficients 
+        """
         pixel_maps=self.__get_pixel_maps__()
         coefs=[]
         for pixel_map in pixel_maps:
@@ -67,9 +89,12 @@ class PixelMapClassifier(object):
         
     def predict(self, x: list) -> list:
         """
-        Some info about method
-        :param x:
-        :return:
+        Predict a number of the device that made this photo. It is defined by 
+        argument of max pearson coefficient 
+        
+        :param x: list of 2D numpy arrays - photos - xtest
+        
+        :return: list of predictions
         """
         predictions=[]
         for i in range(len(x)):
