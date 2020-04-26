@@ -1,0 +1,39 @@
+import numpy as np
+from pathlib import Path
+import pickle
+
+
+class PixelMapClassifier:
+    """
+        Some information about class
+    """
+    def __init__(self, pickle_path: str):
+        self.pickle_path = pickle_path
+
+    def predict(self, x: np.ndarray) -> int:
+        """
+        Some info about method
+        :param x:
+        :return:
+        """
+
+        return
+
+    def __cut_img__(self, img: np.ndarray, pixel_map: np.ndarray) -> (np.ndarray, np.ndarray):
+        """
+        Some info about method
+        :param img:
+        :param pixel_map:
+        :return:
+        """
+        return
+
+    def __get_pixel_maps__(self):
+        pixel_maps_paths = list(Path(self.pickle_path).rglob("*.pcl"))
+        pixel_maps = []
+
+        for path in pixel_maps:
+            with open(path, 'rb') as fp:
+                pixel_maps.append(pickle.load(fp))
+
+        return pixel_maps
