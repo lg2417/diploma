@@ -72,8 +72,16 @@ def classificator_on_map (img):
     
 fds = sorted(os.listdir('E:/Users/Elena/Desktop/nirs/test_all/'))
 coefs =[]
+xtest_pixel=[]
 for img in fds:
-    if img.endswith(('.jpg','.JPG')):
+    if img.endswith(('.jpg','.JPG')): 
         img_test= mean_filter(imread('E:/Users/Elena/Desktop/nirs/test_all/'+img)[:,:,2]).astype(numpy.float64)
-        coef=classificator_on_map(img_test)
-        coefs.append(coef)
+        xtest_pixel.append(img_test)
+#        coef=classificator_on_map(img_test)
+#        coefs.append(coef)
+with open('xtest_pixel.data', 'wb') as filehandle:
+    # store the data as binary data stream
+    pickle.dump(xtest_pixel, filehandle)
+with open('xtest_pixel.data', 'rb') as filehandle:
+    # read the data as binary data stream
+    xtest_pixel = pickle.load(filehandle)
