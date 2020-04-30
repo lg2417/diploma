@@ -1,13 +1,12 @@
-import numpy
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-import scipy
 from scipy import signal
-import matplotlib.pyplot as plt
 import pandas as pd
+from scipy.ndimage import gaussian_filter
 
 class MyRandomForestClassifier(RandomForestClassifier):
     
-    def __get_hist__(self, img: numpy.ndarray):
+    def __get_hist__(self, img: np.ndarray):
         """
         Makes feature vector from a histogram.
         
@@ -15,10 +14,10 @@ class MyRandomForestClassifier(RandomForestClassifier):
         
         :return: feature vector
         """
-        [x1,y1]=numpy.shape(img)
-        img1=numpy.reshape(img,x1*y1)
-        hist_1 = plt.hist(img1,bins=[-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8])[0].astype(int)/(x1*y1)
-        return(hist_1)
+        x1,y1=np.shape(img)
+        img1=img.flatten()
+        hist = np.histogram(img1,bins=np.arange(-8,9))[0].astype(int)/(x1*y1)
+        return(hist)
         
     def get_dataset (self,img):
         """
@@ -32,19 +31,19 @@ class MyRandomForestClassifier(RandomForestClassifier):
         img2 = self.mean_filter(img[:,:,1]).astype(int)
         img3 = self.mean_filter(img[:,:,2]).astype(int)
        
-        original_img=pd.Series(numpy.concatenate([self.__get_hist__(img1),self.__get_hist__(img2),self.__get_hist__(img3)], axis=0))
+        original_img=pd.Series(np.concatenate([self.__get_hist__(img1),self.__get_hist__(img2),self.__get_hist__(img3)], axis=0))
        
-        gaus1 = scipy.ndimage.gaussian_filter(img1,1)
-        gaus2 = scipy.ndimage.gaussian_filter(img2,1)
-        gaus3 = scipy.ndimage.gaussian_filter(img3,1)
+        gaus1 = gaussian_filter(img1,1)
+        gaus2 = gaussian_filter(img2,1)
+        gaus3 = gaussian_filter(img3,1)
         
-        gaus1_img=pd.Series(numpy.concatenate([self.__get_hist__(gaus1),self.__get_hist__(gaus2),self.__get_hist__(gaus3)], axis=0))
+        gaus1_img=pd.Series(np.concatenate([self.__get_hist__(gaus1),self.__get_hist__(gaus2),self.__get_hist__(gaus3)], axis=0))
         
-        gaus4 = scipy.ndimage.gaussian_filter(img1,2)
-        gaus5 = scipy.ndimage.gaussian_filter(img2,2)
-        gaus6 = scipy.ndimage.gaussian_filter(img3,2)
+        gaus4 = gaussian_filter(img1,2)
+        gaus5 = gaussian_filter(img2,2)
+        gaus6 = gaussian_filter(img3,2)
         
-        gaus2_img=pd.Series(numpy.concatenate([self.__get_hist__(gaus4),self.__get_hist__(gaus5),self.__get_hist__(gaus6)], axis=0))
+        gaus2_img=pd.Series(np.concatenate([self.__get_hist__(gaus4),self.__get_hist__(gaus5),self.__get_hist__(gaus6)], axis=0))
         
         dataset=pd.concat([original_img,gaus1_img,gaus2_img], axis = 0).reset_index().transpose().fillna(0).drop('index')
         return(dataset)
@@ -58,12 +57,12 @@ class MyRandomForestClassifier(RandomForestClassifier):
         :return: DataFrame of feature vectors
         """
         Xtest=pd.DataFrame()
-        for i in range(len(x)):
-            img_1=self.get_dataset(x[i])
-            Xtest=pd.concat([Xtest,img_1], axis = 0).reset_index().drop(['index'], axis=1)
+        for photo in x:
+            img=self.get_dataset(photo)
+            Xtest=pd.concat([Xtest,img], axis = 0).reset_index().drop(['index'], axis=1)
         return Xtest
     
-    def mean_filter (self,img: numpy.ndarray):
+    def mean_filter (self,img: np.ndarray):
         """
         Highlight existing hot pixels
         
@@ -71,11 +70,11 @@ class MyRandomForestClassifier(RandomForestClassifier):
         
         :return: 2D numpy array - photo after highlighting hot pixels
         """
-        mask = numpy.array([[-1/9,-1/9,-1/9], [-1/9,8/9,-1/9],[-1/9,-1/9,-1/9]], dtype=numpy.float64)
-        img_out = signal.convolve2d(img,mask,mode='same').astype(numpy.float64)
+        mask = np.array([[-1/9,-1/9,-1/9], [-1/9,8/9,-1/9],[-1/9,-1/9,-1/9]], dtype=np.float64)
+        img_out = signal.convolve2d(img,mask,mode='same').astype(np.float64)
         return img_out     
 
-    def predict_proba(self, X):
+    def predict_proba(self, X:list):
         """
         Redefined function. Before predicting it's necessary to get feature vectors for each photo.
         
@@ -83,7 +82,7 @@ class MyRandomForestClassifier(RandomForestClassifier):
         
         :return: predictions
         """
-        X1=self.make_xtest(X)
-        return super(MyRandomForestClassifier, self).predict_proba(X1)
+        Xtest=self.make_xtest(X)
+        return super(MyRandomForestClassifier, self).predict_proba(Xtest)
         
         

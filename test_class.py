@@ -1,43 +1,43 @@
 from sklearn.ensemble import VotingClassifier
-from example import PixelMapClassifier
+from pixelmap import PixelMapClassifier
 import pickle
 from MyRandomForestClassifier import MyRandomForestClassifier
+from sklearn.multiclass import OneVsRestClassifier
 import pandas as pd
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 """
 Stack classifiers RandomForest and PixelMap into classifier with the voiting rule. 
 """
-    #Сбор полного Xtrain из сохраненных файлов 
-X4=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_sams.pkl")
-X3=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_fuji.pkl")
-X2=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_nikon.pkl")
-X1=pd.read_pickle("E:/Users/Elena/Desktop/nirs/xtrain_huaw.pkl")
-Xtrain=pd.concat([X1,X2,X3,X4], axis = 0).reset_index().drop(['index'], axis=1)
-
-with open('xtest_pixel.data', 'rb') as filehandle:
-    Xtest = pickle.load(filehandle)
-Ytrain = pd.Series()
-i=0
-n=30*4
-for i in range(4*n):
-    if i<n:
-        Ytrain.loc[i] = 1
-        i+=1
-    elif i<2*n:
-        Ytrain.loc[i] = 2
-        i+=1
-    elif i<3*n:
-        Ytrain.loc[i] = 3
-        i+=1
-    else: 
-        Ytrain.loc[i] = 4
-        i+=1
-
-cl1=PixelMapClassifier()
-cl2=MyRandomForestClassifier(n_estimators =150, min_samples_leaf=3,max_depth=16)
-cl1.fit(Xtrain,Ytrain)
-cl2.fit(Xtrain, Ytrain)
-
-eclf = VotingClassifier(estimators=[ ('lr', cl1), ('nb', cl2)], voting='hard')
-eclf.fit(Xtrain,Ytrain)
-Y=eclf.predict(Xtest)
-
+if __name__ == '__main__':
+    Xtrain=pd.read_pickle("./Xtrain.pkl")
+    with open('xtest_pixel.data', 'rb') as filehandle:
+        Xtest = pickle.load(filehandle)
+    Ytrain=pd.read_pickle('./Ytain.pkl')
+    Name=['PixelMap','RandomForest','Voting','OneVSRest']
+    
+    cl1=PixelMapClassifier()
+    Y_cl1=cl1.predict(Xtest)
+    
+    cl2=MyRandomForestClassifier(n_estimators =150, min_samples_leaf=3,max_depth=16)
+    cl2.fit(Xtrain, Ytrain)
+    Y_cl2=cl2.predict(Xtest)
+    
+    vclf = VotingClassifier(estimators=[ ('PixelMap', cl1), ('RandomForest', cl2)], voting='soft',weights=[1,2])
+    vclf.fit(Xtrain,Ytrain)
+    Y_vclf=vclf.predict(Xtest)
+    
+    cl3=OneVsRestClassifier(cl2)
+    Y_cl3 = cl3.fit(Xtrain, Ytrain).predict(Xtest)
+    
+    Ytest=[3,4,3,1,4,2,2,1,3,2,4,2,3,1,4,4,3,1,1,2]
+    coef=0
+    print('Ytest = ',Ytest,'\n')
+    for Y in [Y_cl1,Y_cl2,Y_vclf,Y_cl3]:
+        res1=precision_score(Ytest, Y, average='micro')
+        res2=recall_score(Ytest, Y, average='micro')
+        print('For '+Name[coef]+' classifier:','\n')
+        print('precision score = ',res1,'\n')
+        print('recall score = ',res2,'\n')
+        print('predictions = ',Y,'\n')
+        coef+=1
